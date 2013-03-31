@@ -67,15 +67,8 @@
 
     settings.prototype.pupScriptUrl = '';
 
-    settings.prototype.afkTime = 12 * 60 * 1000;
+    settings.prototype.afkTime = 5 * 60 * 1000;
 
-    settings.prototype.songIntervalMessages = [
-      {
-        interval: 15,
-        offset: 0,
-        msg: "I'm a bot!"
-      }
-    ];
 
     settings.prototype.songCount = 0;
 
@@ -406,27 +399,24 @@
           secsLastActive = timeSinceLastActivity / 1000;
           if (user.getWarningCount() === 0) {
             user.warn();
-            _results.push(API.sendChat("@" + user.getUser().username + ", I haven't seen you chat or vote in at least 12 minutes. Are you AFK?  If you don't show activity in 2 minutes I will remove you."));
+            _results.push(API.sendChat("@" + user.getUser().username + ", Tu n'as pas écrit dans le chat depuis plus de 1 heure, es-tu AFK ? Si tu ne parles toujours pas dans 4 minutes tu seras sorti de la scène."));
           } else if (user.getWarningCount() === 1) {
             lastWarned = user.getLastWarning();
             timeSinceLastWarning = now.getTime() - lastWarned.getTime();
-            twoMinutes = 2 * 60 * 1000;
+            twoMinutes = 4 * 60 * 1000;
             if (timeSinceLastWarning > twoMinutes) {
               user.warn();
-              warnMsg = "@" + user.getUser().username;
-              warnMsg += ", I haven't seen you chat or vote in at least 14 minutes now.  This is your second and FINAL warning.  If you do not chat or vote in the next minute I will remove you.";
-              _results.push(API.sendChat(warnMsg));
             } else {
               _results.push(void 0);
             }
           } else if (user.getWarningCount() === 2) {
             lastWarned = user.getLastWarning();
             timeSinceLastWarning = now.getTime() - lastWarned.getTime();
-            oneMinute = 1 * 60 * 1000;
+            oneMinute = 1000;
             if (timeSinceLastWarning > oneMinute) {
               DJs = API.getDJs();
               if (DJs.length > 0 && DJs[0].id !== user.getUser().id) {
-                API.sendChat("@" + user.getUser().username + ", you had 2 warnings. Please stay active by chatting or voting.");
+                API.sendChat("@" + user.getUser().username + ", tu avais 1 avertissement, reste actif dans le chat la prochaine fois.");
                 API.moderateRemoveDJ(id);
                 _results.push(user.warn());
               } else {
@@ -591,158 +581,7 @@
 
   })();
 
-  cookieCommand = (function(_super) {
-
-    __extends(cookieCommand, _super);
-
-    function cookieCommand() {
-      return cookieCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    cookieCommand.prototype.init = function() {
-      this.command = 'cookie';
-      this.parseType = 'startsWith';
-      return this.rankPrivelege = 'mod';
-    };
-
-    cookieCommand.prototype.getCookie = function() {
-      var c, cookies;
-      cookies = ["a chocolate chip cookie", "a sugar cookie", "an oatmeal raisin cookie", "a 'special' brownie", "an animal cracker", "a scooby snack", "a blueberry muffin", "a cupcake"];
-      c = Math.floor(Math.random() * cookies.length);
-      return cookies[c];
-    };
-
-    cookieCommand.prototype.functionality = function() {
-      var msg, r, user;
-      msg = this.msgData.message;
-      r = new RoomHelper();
-      if (msg.substring(7, 8) === "@") {
-        user = r.lookupUser(msg.substr(8));
-        if (user === false) {
-          API.sendChat("/em doesn't see '" + msg.substr(8) + "' in room and eats cookie himself");
-          return false;
-        } else {
-          return API.sendChat("@" + user.username + ", @" + this.msgData.from + " has rewarded you with " + this.getCookie() + ". Enjoy.");
-        }
-      }
-    };
-
-    return cookieCommand;
-
-  })(Command);
-
-  newSongsCommand = (function(_super) {
-
-    __extends(newSongsCommand, _super);
-
-    function newSongsCommand() {
-      return newSongsCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    newSongsCommand.prototype.init = function() {
-      this.command = '/newsongs';
-      this.parseType = 'startsWith';
-      return this.rankPrivelege = 'user';
-    };
-
-    newSongsCommand.prototype.functionality = function() {
-      var arts, cMedia, chans, chooseRandom, mChans, msg, selections, u, _ref;
-      mChans = this.memberChannels.slice(0);
-      chans = this.channels.slice(0);
-      arts = this.artists.slice(0);
-      chooseRandom = function(list) {
-        var l, r;
-        l = list.length;
-        r = Math.floor(Math.random() * l);
-        return list.splice(r, 1);
-      };
-      selections = {
-        channels: [],
-        artist: ''
-      };
-      u = data.users[this.msgData.fromID].getUser().username;
-      if (u.indexOf("MistaDubstep") !== -1) {
-        selections['channels'].push('MistaDubstep');
-      } else if (u.indexOf("Underground Promotions") !== -1) {
-        selections['channels'].push('UndergroundDubstep');
-      } else {
-        selections['channels'].push(chooseRandom(mChans));
-      }
-      selections['channels'].push(chooseRandom(chans));
-      selections['channels'].push(chooseRandom(chans));
-      cMedia = API.getMedia();
-      if ((cMedia != null) && (_ref = cMedia.author, __indexOf.call(arts, _ref) >= 0)) {
-        selections['artist'] = cMedia.author;
-      } else {
-        selections['artist'] = chooseRandom(arts);
-      }
-      msg = "Everyone's heard that " + selections['artist'] + " track! Get new music from http://youtube.com/" + selections['channels'][0] + " http://youtube.com/" + selections['channels'][1] + " or http://youtube.com/" + selections['channels'][2];
-      return API.sendChat(msg);
-    };
-
-    newSongsCommand.prototype.memberChannels = ["JitterStep", "MistaDubstep", "DubStationPromotions", "UndergroundDubstep", "JesusDied4Dubstep", "DarkstepWarrior", "BombshockDubstep", "Sharestep"];
-
-    newSongsCommand.prototype.channels = ["BassRape", "Mudstep", "WobbleCraftDubz", "MonstercatMedia", "UKFdubstep", "DropThatBassline", "Dubstep", "VitalDubstep", "AirwaveDubstepTV", "EpicNetworkMusic", "NoOffenseDubstep", "InspectorDubplate", "ReptileDubstep", "MrMoMDubstep", "FrixionNetwork", "IcyDubstep", "DubstepWeed", "VhileMusic", "LessThan3Dubstep", "PleaseMindTheDUBstep", "ClownDubstep", "TheULTRADUBSTEP", "DuBM0nkeyz", "DubNationUK", "TehDubstepChannel", "BassDropMedia", "USdubstep", "UNITEDubstep"];
-
-    newSongsCommand.prototype.artists = ["Skrillex", "Doctor P", "Excision", "Flux Pavilion", "Knife Party", "Krewella", "Rusko", "Bassnectar", "Nero", "Deadmau5", "Borgore", "Zomboy"];
-
-    return newSongsCommand;
-
-  })(Command);
-
-  whyWootCommand = (function(_super) {
-
-    __extends(whyWootCommand, _super);
-
-    function whyWootCommand() {
-      return whyWootCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    whyWootCommand.prototype.init = function() {
-      this.command = '/whywoot';
-      this.parseType = 'startsWith';
-      return this.rankPrivelege = 'user';
-    };
-
-    whyWootCommand.prototype.functionality = function() {
-      var msg, nameIndex;
-      msg = "We dislike AFK djs. We calculate your AFK status by checking the last time you			Woot'd or spoke. If you don't woot, I'll automagically remove you. Use our AutoWoot			script to avoid being removed: http://bit.ly/McZdWw";
-      if ((nameIndex = this.msgData.message.indexOf('@')) !== -1) {
-        return API.sendChat(this.msgData.message.substr(nameIndex) + ', ' + msg);
-      } else {
-        return API.sendChat(msg);
-      }
-    };
-
-    return whyWootCommand;
-
-  })(Command);
-
-  themeCommand = (function(_super) {
-
-    __extends(themeCommand, _super);
-
-    function themeCommand() {
-      return themeCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    themeCommand.prototype.init = function() {
-      this.command = '/theme';
-      this.parseType = 'startsWith';
-      return this.rankPrivelege = 'user';
-    };
-
-    themeCommand.prototype.functionality = function() {
-      var msg;
-      msg = "Any type of Bass Music is allowed here. Including Dubstep, Complextro, Drum and Bass, ";
-      msg += "Garage, Breakbeat, Hardstyle, Moombahton, HEAVY EDM, House, Electro, and Trance!!";
-      return API.sendChat(msg);
-    };
-
-    return themeCommand;
-
-  })(Command);
-
+  
   rulesCommand = (function(_super) {
 
     __extends(rulesCommand, _super);
@@ -754,14 +593,14 @@
     rulesCommand.prototype.init = function() {
       this.command = '/rules';
       this.parseType = 'startsWith';
-      return this.rankPrivelege = 'user';
+      return this.rankPrivelege = 'bouncer';
     };
 
     rulesCommand.prototype.functionality = function() {
       var msg;
-      msg = "1) Play good sound quality music. ";
-      msg += "2) Don't replay a song on the room history. 3) Max song limit 8 minutes. ";
-      msg += "4) DO NOT GO AWAY FROM KEYBOARD ON DECK! Please WOOT on DJ Booth and respect your fellow DJs!";
+      msg = "1) Tous les styles de musiques sont autorisés tant qu'ils plaisent. ";
+      msg += "2) Evitez les musiques déjà présente dans l'historique. 3) La limite de durée est de 6 minutes. ";
+      msg += "4) Restez actif dans le chat pour ne pas être sorti de la scène. ";
       return API.sendChat(msg);
     };
 
@@ -799,194 +638,7 @@
 
   })(Command);
 
-  sourceCommand = (function(_super) {
-
-    __extends(sourceCommand, _super);
-
-    function sourceCommand() {
-      return sourceCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    sourceCommand.prototype.init = function() {
-      this.command = ['/source', '/sourcecode', '/author'];
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
-    };
-
-    sourceCommand.prototype.functionality = function() {
-      var msg;
-      msg = 'Backus wrote me in CoffeeScript.  A generalized version of me should be available on github soon!';
-      return API.sendChat(msg);
-    };
-
-    return sourceCommand;
-
-  })(Command);
-
-  wootCommand = (function(_super) {
-
-    __extends(wootCommand, _super);
-
-    function wootCommand() {
-      return wootCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    wootCommand.prototype.init = function() {
-      this.command = '/woot';
-      this.parseType = 'startsWith';
-      return this.rankPrivelege = 'user';
-    };
-
-    wootCommand.prototype.functionality = function() {
-      var msg, nameIndex;
-      msg = "Please WOOT on DJ Booth and support your fellow DJs! AutoWoot: http://bit.ly/Lwcis0";
-      if ((nameIndex = this.msgData.message.indexOf('@')) !== -1) {
-        return API.sendChat(this.msgData.message.substr(nameIndex) + ', ' + msg);
-      } else {
-        return API.sendChat(msg);
-      }
-    };
-
-    return wootCommand;
-
-  })(Command);
-
-  badQualityCommand = (function(_super) {
-
-    __extends(badQualityCommand, _super);
-
-    function badQualityCommand() {
-      return badQualityCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    badQualityCommand.prototype.init = function() {
-      this.command = '.128';
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'mod';
-    };
-
-    badQualityCommand.prototype.functionality = function() {
-      var msg;
-      msg = "Flagged for bad sound quality. Where do you get your music? The garbage can? Don't play this low quality tune again!";
-      return API.sendChat(msg);
-    };
-
-    return badQualityCommand;
-
-  })(Command);
-
-  downloadCommand = (function(_super) {
-
-    __extends(downloadCommand, _super);
-
-    function downloadCommand() {
-      return downloadCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    downloadCommand.prototype.init = function() {
-      this.command = '/download';
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
-    };
-
-    downloadCommand.prototype.functionality = function() {
-      var e, eAuthor, eTitle, msg;
-      if (!(data.currentsong != null)) {
-        return;
-      }
-      e = encodeURIComponent;
-      eAuthor = e(data.currentsong.author);
-      eTitle = e(data.currentsong.title);
-      msg = "Try this link for HIGH QUALITY DOWNLOAD: http://google.com/#hl=en&q=";
-      msg += eAuthor + "%20-%20" + eTitle;
-      msg += "%20site%3Azippyshare.com%20OR%20site%3Asoundowl.com%20OR%20site%3Ahulkshare.com%20OR%20site%3Asoundcloud.com";
-      return API.sendChat(msg);
-    };
-
-    return downloadCommand;
-
-  })(Command);
-
-  afksCommand = (function(_super) {
-
-    __extends(afksCommand, _super);
-
-    function afksCommand() {
-      return afksCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    afksCommand.prototype.init = function() {
-      this.command = '/afks';
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
-    };
-
-    afksCommand.prototype.functionality = function() {
-      var dj, djAfk, djs, msg, now, _i, _len;
-      msg = '';
-      djs = API.getDJs();
-      for (_i = 0, _len = djs.length; _i < _len; _i++) {
-        dj = djs[_i];
-        now = new Date();
-        djAfk = now.getTime() - data.users[dj.id].getLastActivity().getTime();
-        if (djAfk > (5 * 60 * 1000)) {
-          if (msToStr(djAfk) !== false) {
-            msg += dj.username + ' - ' + msToStr(djAfk);
-            msg += '. ';
-          }
-        }
-      }
-      if (msg === '') {
-        return API.sendChat("No one is AFK");
-      } else {
-        return API.sendChat('AFKs: ' + msg);
-      }
-    };
-
-    return afksCommand;
-
-  })(Command);
-
-  allAfksCommand = (function(_super) {
-
-    __extends(allAfksCommand, _super);
-
-    function allAfksCommand() {
-      return allAfksCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    allAfksCommand.prototype.init = function() {
-      this.command = '/allafks';
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
-    };
-
-    allAfksCommand.prototype.functionality = function() {
-      var msg, now, u, uAfk, usrs, _i, _len;
-      msg = '';
-      usrs = API.getUsers();
-      for (_i = 0, _len = usrs.length; _i < _len; _i++) {
-        u = usrs[_i];
-        now = new Date();
-        uAfk = now.getTime() - data.users[u.id].getLastActivity().getTime();
-        if (uAfk > (10 * 60 * 1000)) {
-          if (msToStr(uAfk) !== false) {
-            msg += u.username + ' - ' + msToStr(uAfk);
-            msg += '. ';
-          }
-        }
-      }
-      if (msg === '') {
-        return API.sendChat("No one is AFK");
-      } else {
-        return API.sendChat('AFKs: ' + msg);
-      }
-    };
-
-    return allAfksCommand;
-
-  })(Command);
-
+ 
   statusCommand = (function(_super) {
 
     __extends(statusCommand, _super);
@@ -998,7 +650,7 @@
     statusCommand.prototype.init = function() {
       this.command = '/status';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
+      return this.rankPrivelege = 'manager';
     };
 
     statusCommand.prototype.functionality = function() {
@@ -1012,8 +664,8 @@
       min = min < 10 ? '0' + min : min;
       t = data.totalVotingData;
       t['songs'] = data.songCount;
-      launch = 'Initiated ' + month + '/' + day + ' ' + hour + ':' + min + ' ' + meridian + '. ';
-      totals = '' + t.songs + ' songs have been played, accumulating ' + t.woots + ' woots, ' + t.mehs + ' mehs, and ' + t.curates + ' queues.';
+      launch = 'depuis ' + month + '/' + day + ' ' + hour + ':' + min + ' ' + meridian + '. ';
+      totals = '' + t.songs + ' musiques ont été jouées, accumulant ' + t.woots + ' woots, ' + t.mehs + ' mehs, et ' + t.curates + ' curates.';
       msg = launch + totals;
       return API.sendChat(msg);
     };
@@ -1022,28 +674,6 @@
 
   })(Command);
 
-  unhookCommand = (function(_super) {
-
-    __extends(unhookCommand, _super);
-
-    function unhookCommand() {
-      return unhookCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    unhookCommand.prototype.init = function() {
-      this.command = '/unhook events all';
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'host';
-    };
-
-    unhookCommand.prototype.functionality = function() {
-      API.sendChat('Unhooking all events...');
-      return undoHooks();
-    };
-
-    return unhookCommand;
-
-  })(Command);
 
   dieCommand = (function(_super) {
 
@@ -1056,15 +686,15 @@
     dieCommand.prototype.init = function() {
       this.command = '/die';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'host';
+      return this.rankPrivelege = 'manager';
     };
 
     dieCommand.prototype.functionality = function() {
-      API.sendChat('Unhooking Events...');
+      API.sendChat('Je me sens faible...');
       undoHooks();
-      API.sendChat('Deleting bot data...');
+      API.sendChat('Que se passe t...');
       data.implode();
-      return API.sendChat('Consider me dead');
+      return API.sendChat('Me voila Hors-Service...');
     };
 
     return dieCommand;
@@ -1082,7 +712,7 @@
     reloadCommand.prototype.init = function() {
       this.command = '/reload';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'host';
+      return this.rankPrivelege = 'manager';
     };
 
     reloadCommand.prototype.functionality = function() {
@@ -1109,11 +739,10 @@
     lockCommand.prototype.init = function() {
       this.command = '/lock';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     lockCommand.prototype.functionality = function() {
-      API.sendChat('Pop and lock dat ish');
       return data.lockBooth();
     };
 
@@ -1132,11 +761,10 @@
     unlockCommand.prototype.init = function() {
       this.command = '/unlock';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     unlockCommand.prototype.functionality = function() {
-      API.sendChat('You\'ll never get the key to unlock my heart');
       return data.unlockBooth();
     };
 
@@ -1155,7 +783,7 @@
     swapCommand.prototype.init = function() {
       this.command = '/swap';
       this.parseType = 'startsWith';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     swapCommand.prototype.functionality = function() {
@@ -1168,23 +796,21 @@
         userRemove = r.lookupUser(users[0]);
         userAdd = r.lookupUser(users[1]);
         if (userRemove === false || userAdd === false) {
-          API.sendChat('Error parsing one or both names');
+          API.sendChat('Erreur avec les noms indiqués');
           return false;
         } else {
           return data.lockBooth(function() {
             API.moderateRemoveDJ(userRemove.id);
-            API.sendChat("Removing " + userRemove.username + "...");
             return setTimeout(function() {
               API.moderateAddDJ(userAdd.id);
-              API.sendChat("Adding " + userAdd.username + "...");
               return setTimeout(function() {
                 return data.unlockBooth();
-              }, 1500);
-            }, 1500);
+              }, 500);
+            }, 500);
           });
         }
       } else {
-        return API.sendChat("Command didn't parse into two seperate usernames");
+        return API.sendChat("Erreur avec les noms indiqués");
       }
     };
 
@@ -1203,7 +829,7 @@
     popCommand.prototype.init = function() {
       this.command = '/pop';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     popCommand.prototype.functionality = function() {
@@ -1228,7 +854,7 @@
     pushCommand.prototype.init = function() {
       this.command = '/push';
       this.parseType = 'startsWith';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     pushCommand.prototype.functionality = function() {
@@ -1259,7 +885,7 @@
     resetAfkCommand.prototype.init = function() {
       this.command = '/resetafk';
       this.parseType = 'startsWith';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     resetAfkCommand.prototype.functionality = function() {
@@ -1271,7 +897,7 @@
           u = _ref[id];
           if (u.getUser().username === name) {
             u.updateActivity();
-            API.sendChat('@' + u.getUser().username + '\'s AFK time has been reset.');
+            API.sendChat('@' + u.getUser().username + '\'réinitialisé.');
             return;
           }
         }
@@ -1282,86 +908,6 @@
     };
 
     return resetAfkCommand;
-
-  })(Command);
-
-  forceSkipCommand = (function(_super) {
-
-    __extends(forceSkipCommand, _super);
-
-    function forceSkipCommand() {
-      return forceSkipCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    forceSkipCommand.prototype.init = function() {
-      this.command = '/forceskip';
-      this.parseType = 'startsWith';
-      return this.rankPrivelege = 'mod';
-    };
-
-    forceSkipCommand.prototype.functionality = function() {
-      var msg, param;
-      msg = this.msgData.message;
-      if (msg.length > 11) {
-        param = msg.substr(11);
-        if (param === 'enable') {
-          data.forceSkip = true;
-          return API.sendChat("Forced skipping enabled.");
-        } else if (param === 'disable') {
-          data.forceSkip = false;
-          return API.sendChat("Forced skipping disabled.");
-        }
-      }
-    };
-
-    return forceSkipCommand;
-
-  })(Command);
-
-  overplayedCommand = (function(_super) {
-
-    __extends(overplayedCommand, _super);
-
-    function overplayedCommand() {
-      return overplayedCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    overplayedCommand.prototype.init = function() {
-      this.command = '/overplayed';
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
-    };
-
-    overplayedCommand.prototype.functionality = function() {
-      return API.sendChat("View the list of songs we consider overplayed and suggest additions at http://den.johnback.us/overplayed_tracks");
-    };
-
-    return overplayedCommand;
-
-  })(Command);
-
-  uservoiceCommand = (function(_super) {
-
-    __extends(uservoiceCommand, _super);
-
-    function uservoiceCommand() {
-      return uservoiceCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    uservoiceCommand.prototype.init = function() {
-      this.command = ['/uservoice', '/idea'];
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
-    };
-
-    uservoiceCommand.prototype.functionality = function() {
-      var msg;
-      msg = 'Have an idea for the room, our bot, or an event?  Awesome! Submit it to our uservoice and we\'ll get started on it: http://is.gd/IzP4bA';
-      msg += ' (please don\'t ask for mod)';
-      return API.sendChat(msg);
-    };
-
-    return uservoiceCommand;
 
   })(Command);
 
@@ -1376,7 +922,7 @@
     skipCommand.prototype.init = function() {
       this.command = '/skip';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     skipCommand.prototype.functionality = function() {
@@ -1387,79 +933,6 @@
 
   })(Command);
 
-  whyMehCommand = (function(_super) {
-
-    __extends(whyMehCommand, _super);
-
-    function whyMehCommand() {
-      return whyMehCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    whyMehCommand.prototype.init = function() {
-      this.command = '/whymeh';
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
-    };
-
-    whyMehCommand.prototype.functionality = function() {
-      var msg;
-      msg = "Reserve Mehs for songs that are a) extremely overplayed b) off genre c) absolutely god awful or d) troll songs. ";
-      msg += "If you simply aren't feeling a song, then remain neutral";
-      return API.sendChat(msg);
-    };
-
-    return whyMehCommand;
-
-  })(Command);
-
-  commandsCommand = (function(_super) {
-
-    __extends(commandsCommand, _super);
-
-    function commandsCommand() {
-      return commandsCommand.__super__.constructor.apply(this, arguments);
-    }
-
-    commandsCommand.prototype.init = function() {
-      this.command = '/commands';
-      this.parseType = 'exact';
-      return this.rankPrivelege = 'user';
-    };
-
-    commandsCommand.prototype.functionality = function() {
-      var allowedUserLevels, c, cc, cmd, msg, user, _i, _j, _len, _len1, _ref, _ref1;
-      allowedUserLevels = [];
-      user = API.getUser(this.msgData.fromID);
-      if (user.owner) {
-        allowedUserLevels = ['user', 'mod', 'host'];
-      } else if (user.moderator) {
-        allowedUserLevels = ['user', 'mod'];
-      } else {
-        allowedUserLevels = ['user'];
-      }
-      msg = '';
-      for (_i = 0, _len = cmds.length; _i < _len; _i++) {
-        cmd = cmds[_i];
-        c = new cmd('');
-        if (_ref = c.rankPrivelege, __indexOf.call(allowedUserLevels, _ref) >= 0) {
-          if (typeof c.command === "string") {
-            msg += c.command + ', ';
-          } else if (typeof c.command === "object") {
-            _ref1 = c.command;
-            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-              cc = _ref1[_j];
-              msg += cc + ', ';
-            }
-          }
-        }
-      }
-      msg = msg.substring(0, msg.length - 2);
-      return API.sendChat(msg);
-    };
-
-    return commandsCommand;
-
-  })(Command);
 
   disconnectLookupCommand = (function(_super) {
 
@@ -1472,7 +945,7 @@
     disconnectLookupCommand.prototype.init = function() {
       this.command = '/dclookup';
       this.parseType = 'startsWith';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     disconnectLookupCommand.prototype.functionality = function() {
@@ -1494,11 +967,11 @@
               }
             }
             if (disconnectInstances.length > 0) {
-              resp = u.getUser().username + ' has disconnected ' + disconnectInstances.length.toString() + ' time';
+              resp = u.getUser().username + ' a été déconnécté ' + disconnectInstances.length.toString() + ' fois';
               if (disconnectInstances.length === 1) {
                 resp += '. ';
               } else {
-                resp += 's. ';
+                resp += '. ';
               }
               recentDisconnect = disconnectInstances.pop();
               dcHour = recentDisconnect.time.getHours();
@@ -1509,20 +982,20 @@
               dcMeridian = dcHour % 12 === dcHour ? 'AM' : 'PM';
               dcTimeStr = '' + dcHour + ':' + dcMins + ' ' + dcMeridian;
               dcSongsAgo = data.songCount - recentDisconnect.songCount;
-              resp += 'Their most recent disconnect was at ' + dcTimeStr + ' (' + dcSongsAgo + ' songs ago). ';
+              resp += 'La plus récente date de ' + dcTimeStr + ' ( il y a' + dcSongsAgo + ' musiques). ';
               if (recentDisconnect.waitlistPosition !== void 0) {
-                resp += 'They were ' + recentDisconnect.waitlistPosition + ' song';
+                resp += 'Il lui restait ' + recentDisconnect.waitlistPosition + ' musique';
                 if (recentDisconnect.waitlistPosition > 1) {
                   resp += 's';
                 }
-                resp += ' away from the DJ booth.';
+                resp += " avant d'être sur scène.";
               } else {
-                resp += 'They were not on the waitlist.';
+                resp += "Il n'était pas dans la fil.";
               }
               API.sendChat(resp);
               return;
             } else {
-              API.sendChat("I haven't seen " + u.getUser().username + " disconnect.");
+              API.sendChat("Je n'ai pas vu " + u.getUser().username + " être déconnecté.");
               return;
             }
           }
@@ -1546,7 +1019,7 @@
     voteRatioCommand.prototype.init = function() {
       this.command = '/voteratio';
       this.parseType = 'startsWith';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     voteRatioCommand.prototype.functionality = function() {
@@ -1558,19 +1031,19 @@
         u = r.lookupUser(name);
         if (u !== false) {
           votes = r.userVoteRatio(u);
-          msg = u.username + " has wooted " + votes['woot'].toString() + " time";
+          msg = u.username + " a woot " + votes['woot'].toString() + " fois";
           if (votes['woot'] === 1) {
             msg += ', ';
           } else {
-            msg += 's, ';
+            msg += ', ';
           }
-          msg += "and meh'd " + votes['meh'].toString() + " time";
+          msg += "et a meh " + votes['meh'].toString() + " fois";
           if (votes['meh'] === 1) {
             msg += '. ';
           } else {
-            msg += 's. ';
+            msg += '. ';
           }
-          msg += "Their woot:vote ratio is " + votes['positiveRatio'].toString() + ".";
+          msg += "Son ratio est de " + votes['positiveRatio'].toString() + ".";
           return API.sendChat(msg);
         } else {
           return API.sendChat("I don't recognize a user named '" + name + "'");
@@ -1595,7 +1068,7 @@
     avgVoteRatioCommand.prototype.init = function() {
       this.command = '/avgvoteratio';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     avgVoteRatioCommand.prototype.functionality = function() {
@@ -1615,7 +1088,7 @@
         averageRatio += ratio;
       }
       averageRatio = averageRatio / roomRatios.length;
-      msg = "Accounting for " + roomRatios.length.toString() + " user ratios, the average room ratio is " + averageRatio.toFixed(2).toString() + ".";
+      msg = "D'après le ratio de " + roomRatios.length.toString() + " utilisateurs, la moyenne de la room est de " + averageRatio.toFixed(2).toString() + ".";
       return API.sendChat(msg);
     };
 
@@ -1647,37 +1120,6 @@
     return data.currentcurates = obj.curates;
   };
 
-  announceCurate = function(obj) {
-    return API.sendChat("/em: " + obj.user.username + " loves this song!");
-  };
-
-  handleUserJoin = function(user) {
-    data.userJoin(user);
-    data.users[user.id].updateActivity();
-    return API.sendChat("/em: " + user.username + " has joined the Room!");
-  };
-
-  handleNewSong = function(obj) {
-    var songId;
-    data.intervalMessages();
-    if (data.currentsong === null) {
-      data.newSong();
-    } else {
-      API.sendChat("/em: Just played " + data.currentsong.title + " by " + data.currentsong.author + ". Stats: Woots: " + data.currentwoots + ", Mehs: " + data.currentmehs + ", Loves: " + data.currentcurates + ".");
-      data.newSong();
-      document.getElementById("button-vote-positive").click();
-    }
-    if (data.forceSkip) {
-      songId = obj.media.id;
-      return setTimeout(function() {
-        var cMedia;
-        cMedia = API.getMedia();
-        if (cMedia.id === songId) {
-          return API.moderateForceSkip();
-        }
-      }, obj.media.duration * 1000);
-    }
-  };
 
   handleVote = function(obj) {
     data.users[obj.user.id].updateActivity();
