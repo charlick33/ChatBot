@@ -67,14 +67,10 @@
 
     settings.prototype.pupScriptUrl = '';
 
-    settings.prototype.afkTime = 12 * 60 * 1000;
+    settings.prototype.afkTime = 60 * 60 * 1000;
 
     settings.prototype.songIntervalMessages = [
       {
-        interval: 15,
-        offset: 0,
-        msg: "I'm a bot!"
-      }
     ];
 
     settings.prototype.songCount = 0;
@@ -362,7 +358,6 @@
   })();
 
   pupOnline = function() {
-    return API.sendChat("Bot Online!");
   };
 
   populateUserData = function() {
