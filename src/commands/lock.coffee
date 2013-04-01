@@ -2,8 +2,7 @@ class lockCommand extends Command
 	init: ->
 		@command='/lock'
 		@parseType='exact'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
-		API.sendChat 'Pop and lock dat ish'
 		data.lockBooth()
