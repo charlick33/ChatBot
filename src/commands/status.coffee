@@ -2,7 +2,7 @@ class statusCommand extends Command
 	init: ->
 		@command='/status'
 		@parseType='exact'
-		@rankPrivelege='manager'
+		@rankPrivelege='featured'
 
 	functionality: ->
 		lt = data.launchTime

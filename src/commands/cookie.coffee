@@ -27,4 +27,4 @@ class cookieCommand extends Command
 				API.sendChat "/em ne trouve pas '"+msg.substr(8)+"' dans la room et mange lui même le cookie"
 				return false
 			else
-				API.sendChat "@"+user.username+", @"+@msgData.from+" t'as recompensé avec un "+@getCookie()+". Enjoy."
+				API.sendChat "@"+user.username+", @"+@msgData.from+" t'as recompensé avec "+@getCookie()+". Enjoy."

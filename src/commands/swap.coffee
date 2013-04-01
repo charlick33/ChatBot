@@ -13,7 +13,7 @@ class swapCommand extends Command
 			userRemove = r.lookupUser users[0]
 			userAdd = r.lookupUser users[1]
 			if userRemove == false or userAdd == false
-				API.sendChat 'Nom incorrect'
+				API.sendChat 'Erreur dans un des deux noms'
 				return false
 			else
 				data.lockBooth(->
@@ -26,4 +26,4 @@ class swapCommand extends Command
 					,1500)
 				)
 		else
-			API.sendChat "Noms incorrect"
+			API.sendChat "Il faut 2 nom séparés"

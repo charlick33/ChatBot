@@ -2,7 +2,7 @@ class avgVoteRatioCommand extends Command
 	init: ->
 		@command='/avgvoteratio'
 		@parseType='exact'
-		@rankPrivelege='mod'
+		@rankPrivelege='manager'
 
 	functionality: ->
 		roomRatios = []
