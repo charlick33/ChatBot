@@ -189,7 +189,6 @@ class RoomHelper
 		votes
 
 pupOnline = ->
-	API.sendChat "Bot Online!"
 
 populateUserData = ->
 	users = API.getUsers()
