@@ -8,7 +8,7 @@ class settings
 	currentwoots: 0
 	currentmehs: 0
 	currentcurates: 0
-	roomUrlPath: null#for lock. 'dubstep-den' in 'http://plug.dj/dubstep-den/'
+	roomUrlPath: null#for lock. 'dubstep-den' in 'http://plug.dj/harrylafranc'
 	internalWaitlist: []
 	userDisconnectLog: []
 	voteLog: {}
@@ -23,7 +23,6 @@ class settings
 	pupScriptUrl: ''
 	afkTime: 60*60*1000#Time without activity to be considered afk. 12 minutes in milliseconds
 	songIntervalMessages: [
-		{interval:15,offset:0,msg:"I'm a bot!"}
 	]
 	songCount: 0
 
@@ -224,24 +223,21 @@ afkCheck = ->
         secsLastActive = timeSinceLastActivity / 1000
         if user.getWarningCount() == 0
           user.warn()
-          API.sendChat "@"+user.getUser().username+", I haven't seen you chat or vote in at least 12 minutes. Are you AFK?  If you don't show activity in 2 minutes I will remove you."
+          API.sendChat "@"+user.getUser().username+", Je ne t'ai pas vu écrire depuis 1heure, es tu AFK ? Tu seras sorti dans la scène dans 5 minutes si tu restes inactif dans le chat."
         else if user.getWarningCount() == 1
           lastWarned = user.getLastWarning()#last time user was warned
           timeSinceLastWarning = now.getTime() - lastWarned.getTime()
-          twoMinutes = 2*60*1000
+          twoMinutes = 5*60*1000
           if timeSinceLastWarning > twoMinutes
             user.warn()
-            warnMsg = "@"+user.getUser().username
-            warnMsg += ", I haven't seen you chat or vote in at least 14 minutes now.  This is your second and FINAL warning.  If you do not chat or vote in the next minute I will remove you."
-            API.sendChat warnMsg
         else if user.getWarningCount() == 2#Time to remove
           lastWarned = user.getLastWarning()#last time user was warned
           timeSinceLastWarning = now.getTime() - lastWarned.getTime()
-          oneMinute = 1*60*1000
+          oneMinute = 1000
           if timeSinceLastWarning > oneMinute
             DJs = API.getDJs()
             if DJs.length > 0 and DJs[0].id != user.getUser().id
-              API.sendChat "@"+user.getUser().username+", you had 2 warnings. Please stay active by chatting or voting."
+              API.sendChat "@"+user.getUser().username+", tu avais été prévenu, restes actif dans le chat la prochaine fois."
               API.moderateRemoveDJ id
               user.warn()
       else
@@ -279,7 +275,8 @@ msToStr = (msTime) ->
     return msg
   else
     return false
-
+	
+	
 class Command
 	
 	# Abstract of chat command
@@ -369,18 +366,18 @@ class cookieCommand extends Command
 	init: ->
 		@command='cookie'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='featured'
 
 	getCookie: ->
 		cookies = [
-			"a chocolate chip cookie"
-			"a sugar cookie"
-			"an oatmeal raisin cookie"
-			"a 'special' brownie"
-			"an animal cracker"
-			"a scooby snack"
-			"a blueberry muffin"
-			"a cupcake"
+			"un cookie au chocolat"
+			"un cookie au sucre"
+			"un cookie au raisin sec"
+			"un brownie chocolat/noisette"
+			"une poche d'haribo"
+			"un scooby snack"
+			"un muffin a la cerise"
+			"une glace"
 		]
 		c = Math.floor Math.random()*cookies.length
 		cookies[c]
@@ -391,284 +388,32 @@ class cookieCommand extends Command
 		if(msg.substring(7, 8) == "@") #Valid cookie argument including a username!
 			user = r.lookupUser(msg.substr(8))
 			if user == false
-				API.sendChat "/em doesn't see '"+msg.substr(8)+"' in room and eats cookie himself"
+				API.sendChat "/em ne trouve pas '"+msg.substr(8)+"' dans la room et mange lui même le cookie"
 				return false
 			else
-				API.sendChat "@"+user.username+", @"+@msgData.from+" has rewarded you with "+@getCookie()+". Enjoy."
+				API.sendChat "@"+user.username+", @"+@msgData.from+" t'as recompensé avec "+@getCookie()+". Enjoy."
 
-
-class newSongsCommand extends Command
-	init: ->
-		@command='/newsongs'
-		@parseType='startsWith'
-		@rankPrivelege='user'
-
-	functionality: ->
-		mChans = @memberChannels.slice(0)
-		chans = @channels.slice(0)#shallow copies
-		arts = @artists.slice(0)
-		#list local so lists don't shrink as function is called over time
-		chooseRandom= (list)->
-			l = list.length
-			r = Math.floor Math.random()*l
-			return list.splice(r,1)
-
-		selections =
-			channels : [],
-			artist : ''
-		u = data.users[@msgData.fromID].getUser().username
-		if(u.indexOf("MistaDubstep") != -1)
-			selections['channels'].push 'MistaDubstep'
-		else if(u.indexOf("Underground Promotions") != -1)
-			selections['channels'].push 'UndergroundDubstep'
-		else
-			selections['channels'].push chooseRandom mChans	
-		selections['channels'].push chooseRandom chans
-		selections['channels'].push chooseRandom chans
-
-		cMedia = API.getMedia()
-		if cMedia? and cMedia.author in arts
-			selections['artist'] = cMedia.author
-		else
-			selections['artist'] = chooseRandom arts
-
-		msg = "Everyone's heard that " + selections['artist'] +
-		" track! Get new music from http://youtube.com/" + selections['channels'][0] +
-		" http://youtube.com/" + selections['channels'][1] + 
-		" or http://youtube.com/" + selections['channels'][2];
-
-		API.sendChat(msg)
-
-	# memChanLen = memberChannels.length
- #      chanLen = channels.length
- #      artistsLen = artists.length
- #      mc1 = Math.floor(Math.random() * memChanLen)
- #      mchan1 = memberChannels.splice(mc1, 1)
- #      mc2 = Math.floor(Math.random() * memChanLen - 1)
- #      mchan2 = memberChannels.splice(mc2, 1)
- #      c1 = Math.floor(Math.random() * (chanLen))
- #      chan = channels.splice(c1, 1)
- #      a1 = Math.floor(Math.random() * artistsLen)
- #      API.sendChat "Everyone's heard that " + artists[a1] + " track! Get new music from http://youtube.com/" + mchan1 + " http://youtube.com/" + mchan2 + " or http://youtube.com/" + chan
-		
-	memberChannels: [
-		"JitterStep",
-		"MistaDubstep",
-		"DubStationPromotions",
-		"UndergroundDubstep",
-		"JesusDied4Dubstep",
-		"DarkstepWarrior",
-		"BombshockDubstep",
-		"Sharestep"
-	]
-	channels: [
-		"BassRape",
-		"Mudstep",
-		"WobbleCraftDubz",
-		"MonstercatMedia",
-		"UKFdubstep",
-		"DropThatBassline",
-		"Dubstep",
-		"VitalDubstep",
-		"AirwaveDubstepTV",
-		"EpicNetworkMusic",
-		"NoOffenseDubstep",
-		"InspectorDubplate",
-		"ReptileDubstep",
-		"MrMoMDubstep",
-		"FrixionNetwork",
-		"IcyDubstep",
-		"DubstepWeed",
-		"VhileMusic",
-		"LessThan3Dubstep",
-		"PleaseMindTheDUBstep",
-		"ClownDubstep",
-		"TheULTRADUBSTEP",
-		"DuBM0nkeyz",
-		"DubNationUK",
-		"TehDubstepChannel",
-		"BassDropMedia",
-		"USdubstep",
-		"UNITEDubstep" 
-	]
-	artists: [
-		"Skrillex",
-		"Doctor P",
-		"Excision",
-		"Flux Pavilion",
-		"Knife Party",
-		"Krewella",
-		"Rusko",
-		"Bassnectar",
-		"Nero",
-		"Deadmau5"
-		"Borgore"
-		"Zomboy"
-	]
-
-
-class whyWootCommand extends Command
-	init: ->
-		@command='/whywoot'
-		@parseType='startsWith'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg = "We dislike AFK djs. We calculate your AFK status by checking the last time you
-			Woot'd or spoke. If you don't woot, I'll automagically remove you. Use our AutoWoot
-			script to avoid being removed: http://bit.ly/McZdWw"
-
-		if((nameIndex = @msgData.message.indexOf('@')) != -1)
-			API.sendChat @msgData.message.substr(nameIndex) + ', ' + msg
-		else
-			API.sendChat msg
-
-class themeCommand extends Command
-	init: ->
-		@command='/theme'
-		@parseType='startsWith'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg = "Any type of Bass Music is allowed here. Including Dubstep, Complextro, Drum and Bass, "
-		msg += "Garage, Breakbeat, Hardstyle, Moombahton, HEAVY EDM, House, Electro, and Trance!!"
-		API.sendChat(msg)
 
 
 class rulesCommand extends Command
 	init: ->
 		@command='/rules'
 		@parseType='startsWith'
-		@rankPrivelege='user'
+		@rankPrivelege='featured'
 
 	functionality: ->
-		msg = "1) Play good sound quality music. "
-		msg += "2) Don't replay a song on the room history. 3) Max song limit 8 minutes. "
-		msg += "4) DO NOT GO AWAY FROM KEYBOARD ON DECK! Please WOOT on DJ Booth and respect your fellow DJs!"
+		msg = "1) Tous les styles sont autorisés tant qu'ils plaisent. "
+		msg += "2) Evitez les musiques déjà dans l'historique. 3) La limite de durée est de 6 minutes. "
+		msg += "4) Restez actif dans le chat pour ne pas être sorti de la scène!"
 		API.sendChat(msg)
 		
 
-
-class roomHelpCommand extends Command
-	init: ->
-		@command='/roomhelp'
-		@parseType='startsWith'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg1 = "Welcome to the Dubstep Den! Create a playlist and populate it with songs from either YouTube or Soundcloud.  "
-		msg1+= "Click the 'Join Waitlist' button and wait your turn to play music. Most electronic music allowed, type '/theme' for specifics."
-
-		msg2 = "Stay active while waiting to play your song or I'll remove you.  Play good quality music that hasn't been played recently (check room history).  "
-		msg2+= "Avoid over played artists like Skrillex. Ask a mod if you're unsure about your song choice"
-		API.sendChat(msg1)
-		setTimeout (-> API.sendChat msg2), 750
-		
-
-
-class sourceCommand extends Command
-	init: ->
-		@command=['/source', '/sourcecode', '/author']
-		@parseType='exact'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg = 'Backus wrote me in CoffeeScript.  A generalized version of me should be available on github soon!'
-		API.sendChat msg
-
-class wootCommand extends Command
-	init: ->
-		@command='/woot'
-		@parseType='startsWith'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg = "Please WOOT on DJ Booth and support your fellow DJs! AutoWoot: http://bit.ly/Lwcis0"
-		if((nameIndex = @msgData.message.indexOf('@')) != -1)
-			API.sendChat @msgData.message.substr(nameIndex) + ', ' + msg
-		else
-			API.sendChat msg
-
-class badQualityCommand extends Command
-	init: ->
-		@command='.128'
-		@parseType='exact'
-		@rankPrivelege='mod'
-
-	functionality: ->
-		msg = "Flagged for bad sound quality. Where do you get your music? The garbage can? Don't play this low quality tune again!"
-		API.sendChat msg
-
-class downloadCommand extends Command
-	init: ->
-		@command='/download'
-		@parseType='exact'
-		@rankPrivelege='user'
-
-	functionality: ->
-		return if !data.currentsong? # no song
-		e = encodeURIComponent
-		eAuthor = e(data.currentsong.author)
-		eTitle = e(data.currentsong.title)
-		msg ="Try this link for HIGH QUALITY DOWNLOAD: http://google.com/#hl=en&q="
-		msg+=eAuthor + "%20-%20" + eTitle
-		msg+="%20site%3Azippyshare.com%20OR%20site%3Asoundowl.com%20OR%20site%3Ahulkshare.com%20OR%20site%3Asoundcloud.com"
-
-		API.sendChat(msg)
-		
-
-
-class afksCommand extends Command
-	init: ->
-		@command='/afks'
-		@parseType='exact'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg = ''
-		djs = API.getDJs() 
-		for dj in djs
-			now = new Date()
-			djAfk = now.getTime() - data.users[dj.id].getLastActivity().getTime()
-			if djAfk > (5*60*1000)#AFK longer than 5 minutes
-				#creat afk string
-				if msToStr(djAfk) != false
-					msg += dj.username + ' - ' + msToStr(djAfk)
-					msg += '. '
-
-		if msg == ''
-			API.sendChat "No one is AFK"
-		else
-			API.sendChat 'AFKs: ' + msg
-
-class allAfksCommand extends Command
-	init: ->
-		@command='/allafks'
-		@parseType='exact'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg = ''
-		usrs = API.getUsers() 
-		for u in usrs
-			now = new Date()
-			uAfk = now.getTime() - data.users[u.id].getLastActivity().getTime()
-			if uAfk > (10*60*1000)#AFK longer than 10 minutes
-				#creat afk string
-				if msToStr(uAfk) != false
-					msg += u.username + ' - ' + msToStr(uAfk)
-					msg += '. '
-
-		if msg == ''
-			API.sendChat "No one is AFK"
-		else
-			API.sendChat 'AFKs: ' + msg
 
 class statusCommand extends Command
 	init: ->
 		@command='/status'
 		@parseType='exact'
-		@rankPrivelege='user'
+		@rankPrivelege='featured'
 
 	functionality: ->
 		lt = data.launchTime
@@ -682,18 +427,19 @@ class statusCommand extends Command
 		t = data.totalVotingData
 		t['songs'] = data.songCount
 
-		launch = 'Initiated ' + month + '/' + day + ' ' + hour + ':' + min + ' ' + meridian + '. '
-		totals = '' + t.songs + ' songs have been played, accumulating ' + t.woots + ' woots, ' + t.mehs + ' mehs, and ' + t.curates + ' queues.'
+		launch = 'Depuis le ' + month + '/' + day + ' à ' + hour + ':' + min + ' ' + meridian + '. '
+		totals = '' + t.songs + ' musiques ont été jouées, accumulant ' + t.woots + ' woots, ' + t.mehs + ' mehs, et ' + t.curates + ' favoris.'
 		
 		msg = launch + totals
 
 		API.sendChat msg
-
+		
+		
 class unhookCommand extends Command
 	init: ->
 		@command='/unhook events all'
 		@parseType='exact'
-		@rankPrivelege='host'
+		@rankPrivelege='manager'
 
 	functionality: ->
 		API.sendChat 'Unhooking all events...'
@@ -705,21 +451,21 @@ class dieCommand extends Command
 	init: ->
 		@command='/die'
 		@parseType='exact'
-		@rankPrivelege='host'
+		@rankPrivelege='manager'
 
 	functionality: ->
-		API.sendChat 'Unhooking Events...'
+		API.sendChat "Que se passe t'il !?"
 		undoHooks()
-		API.sendChat 'Deleting bot data...'
+		API.sendChat 'On me débranche, aidez moi!'
 		data.implode()
-		API.sendChat 'Consider me dead'
+		API.sendChat '...Hors-ligne...'
 
 
 class reloadCommand extends Command
 	init: ->
 		@command='/reload'
 		@parseType='exact'
-		@rankPrivelege='host'
+		@rankPrivelege='manager'
 
 	functionality: ->
 		API.sendChat 'brb'
@@ -727,7 +473,8 @@ class reloadCommand extends Command
 		pupSrc = data.pupScriptUrl
 		data.implode()
 		$.getScript(pupSrc)
-
+		
+		
 class lockCommand extends Command
 	init: ->
 		@command='/lock'
@@ -742,18 +489,16 @@ class unlockCommand extends Command
 	init: ->
 		@command='/unlock'
 		@parseType='exact'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
-		API.sendChat 'You\'ll never get the key to unlock my heart'
 		data.unlockBooth()
-
 
 class swapCommand extends Command
 	init: ->
 		@command='/swap'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		msg = @msgData.message
@@ -764,54 +509,52 @@ class swapCommand extends Command
 			userRemove = r.lookupUser users[0]
 			userAdd = r.lookupUser users[1]
 			if userRemove == false or userAdd == false
-				API.sendChat 'Error parsing one or both names'
+				API.sendChat 'Erreur dans un des deux noms'
 				return false
 			else
 				data.lockBooth(->
 					API.moderateRemoveDJ userRemove.id
-					API.sendChat "Removing " + userRemove.username + "..."
 					setTimeout(->
 						API.moderateAddDJ userAdd.id
-						API.sendChat "Adding " + userAdd.username + "..."
 						setTimeout(->
 							data.unlockBooth()
 						,1500)
 					,1500)
 				)
 		else
-			API.sendChat "Command didn't parse into two seperate usernames"
-
+			API.sendChat "Il faut 2 noms séparés"
+			
+			
 class popCommand extends Command
 	init: ->
 		@command='/pop'
 		@parseType='exact'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		djs = API.getDJs()
 		popDj = djs[djs.length-1]
 		API.moderateRemoveDJ(popDj.id)
-
 class pushCommand extends Command
 	init: ->
-		@command='/push'
+		@command='/add'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		msg = @msgData.message
-		if msg.length>@command.length+2#'/push @'
+		if msg.length>@command.length+2#'/add @'
 			name = msg.substr(@command.length+2)
 			r = new RoomHelper()
 			user = r.lookupUser(name)
 			if user != false
 				API.moderateAddDJ user.id
-
+				
 class resetAfkCommand extends Command
 	init: ->
 		@command='/resetafk'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		if @msgData.message.length > 10
@@ -819,7 +562,7 @@ class resetAfkCommand extends Command
 			for id,u of data.users
 				if u.getUser().username == name
 					u.updateActivity()
-					API.sendChat '@' + u.getUser().username + '\'s AFK time has been reset.'
+					API.sendChat '@' + u.getUser().username + '\'s a été réinitialisé.'
 					return
 			API.sendChat 'Not sure who ' + name + ' is'
 			return
@@ -827,103 +570,12 @@ class resetAfkCommand extends Command
 			API.sendChat 'Yo Gimme a name r-tard'
 			return
 
-class forceSkipCommand extends Command
-	init: ->
-		@command='/forceskip'
-		@parseType='startsWith'
-		@rankPrivelege='mod'
-
-	functionality: ->
-		msg = @msgData.message
-		if msg.length > 11 #command switch included
-			param = msg.substr(11)
-			if param == 'enable'
-				data.forceSkip = true
-				API.sendChat "Forced skipping enabled."
-			else if param == 'disable'
-				data.forceSkip = false
-				API.sendChat "Forced skipping disabled."
-		
-
-class overplayedCommand extends Command
-	init: ->
-		@command='/overplayed'
-		@parseType='exact'
-		@rankPrivelege='user'
-
-	functionality: ->
-		API.sendChat "View the list of songs we consider overplayed and suggest additions at http://den.johnback.us/overplayed_tracks"
-		
-
-
-class uservoiceCommand extends Command
-	init: ->
-		@command=['/uservoice','/idea']
-		@parseType='exact'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg = 'Have an idea for the room, our bot, or an event?  Awesome! Submit it to our uservoice and we\'ll get started on it: http://is.gd/IzP4bA'
-		msg += ' (please don\'t ask for mod)'
-		API.sendChat(msg)
-
-
-class skipCommand extends Command
-	init: ->
-		@command='/skip'
-		@parseType='exact'
-		@rankPrivelege='mod'
-
-	functionality: ->
-		API.moderateForceSkip()
-		
-
-
-class whyMehCommand extends Command
-	init: ->
-		@command='/whymeh'
-		@parseType='exact'
-		@rankPrivelege='user'
-
-	functionality: ->
-		msg = "Reserve Mehs for songs that are a) extremely overplayed b) off genre c) absolutely god awful or d) troll songs. "
-		msg += "If you simply aren't feeling a song, then remain neutral"
-		API.sendChat msg
-
-class commandsCommand extends Command
-	init: ->
-		@command='/commands'
-		@parseType='exact'
-		@rankPrivelege='user'
-
-	functionality: ->
-		allowedUserLevels = []
-		user = API.getUser(@msgData.fromID)
-		if user.owner
-			allowedUserLevels = ['user','mod','host']
-		else if user.moderator
-			allowedUserLevels = ['user','mod']
-		else
-			allowedUserLevels = ['user']
-		msg = ''
-		for cmd in cmds
-			c = new cmd('')
-			if c.rankPrivelege in allowedUserLevels
-				if typeof c.command == "string"
-					msg += c.command + ', '
-				else if typeof c.command == "object"
-					for cc in c.command
-						msg += cc + ', '
-		msg = msg.substring(0,msg.length-2)
-		API.sendChat msg
-		
-
 
 class disconnectLookupCommand extends Command
 	init: ->
 		@command='/dclookup'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		cmd = @msgData.message
@@ -937,11 +589,11 @@ class disconnectLookupCommand extends Command
 						if dcUser.id == dcLookupId
 							disconnectInstances.push(dcUser)
 					if disconnectInstances.length > 0
-						resp = u.getUser().username + ' has disconnected ' + disconnectInstances.length.toString() + ' time'
+						resp = u.getUser().username + ' à été déconnecté ' + disconnectInstances.length.toString() + ' fois'
 						if disconnectInstances.length == 1#lol plurals
 							resp += '. '
 						else
-							resp += 's. '
+							resp += '. '
 						recentDisconnect = disconnectInstances.pop()
 						dcHour = recentDisconnect.time.getHours()
 						dcMins = recentDisconnect.time.getMinutes()
@@ -950,27 +602,27 @@ class disconnectLookupCommand extends Command
 						dcMeridian = if (dcHour % 12 == dcHour) then 'AM' else 'PM'
 						dcTimeStr = ''+dcHour+':'+dcMins+' '+dcMeridian
 						dcSongsAgo = data.songCount - recentDisconnect.songCount
-						resp += 'Their most recent disconnect was at ' + dcTimeStr + ' (' + dcSongsAgo + ' songs ago). '
+						resp += 'la plus récente était à ' + dcTimeStr + ' (il y a ' + dcSongsAgo + ' musiques). '
 
 						if recentDisconnect.waitlistPosition != undefined
-							resp += 'They were ' + recentDisconnect.waitlistPosition + ' song'
+							resp += 'Il lui restait ' + recentDisconnect.waitlistPosition + ' musique'
 							if recentDisconnect.waitlistPosition > 1#lol plural
 								resp += 's'
-							resp += ' away from the DJ booth.'
+							resp += " avant d'être sur la scène."
 						else
-							resp += 'They were not on the waitlist.'
+							resp += "Il n'était pas dans la fil d'attente."
 						API.sendChat resp
 						return
 					else
 						API.sendChat "I haven't seen " + u.getUser().username + " disconnect."
 						return
 			API.sendChat "I don't see a user in the room named '"+givenName+"'."
-
+			
 class voteRatioCommand extends Command
 	init: ->
 		@command='/voteratio'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		r = new RoomHelper()
@@ -980,17 +632,17 @@ class voteRatioCommand extends Command
 			u = r.lookupUser(name)
 			if u != false
 				votes = r.userVoteRatio(u)
-				msg = u.username + " has wooted "+votes['woot'].toString()+" time"
+				msg = u.username + " a woot "+votes['woot'].toString()+" fois"
 				if votes['woot'] == 1
 					msg+=', '
 				else
-					msg+='s, '
-				msg += "and meh'd "+votes['meh'].toString()+" time"
+					msg+=', '
+				msg += "et meh "+votes['meh'].toString()+" fois"
 				if votes['meh'] == 1
 					msg+='. '
 				else
-					msg+='s. '
-				msg+="Their woot:vote ratio is " + votes['positiveRatio'].toString() + "."
+					msg+='. '
+				msg+="Son ratio de woot et de " + votes['positiveRatio'].toString() + "."
 				API.sendChat msg
 			else
 				API.sendChat "I don't recognize a user named '"+name+"'"
@@ -998,12 +650,11 @@ class voteRatioCommand extends Command
 			API.sendChat "I'm not sure what you want from me..."
 		
 
-
 class avgVoteRatioCommand extends Command
 	init: ->
 		@command='/avgvoteratio'
 		@parseType='exact'
-		@rankPrivelege='mod'
+		@rankPrivelege='manager'
 
 	functionality: ->
 		roomRatios = []
@@ -1016,8 +667,9 @@ class avgVoteRatioCommand extends Command
 		for ratio in roomRatios
 			averageRatio+=ratio
 		averageRatio = averageRatio / roomRatios.length
-		msg = "Accounting for " + roomRatios.length.toString() + " user ratios, the average room ratio is " + averageRatio.toFixed(2).toString() + "."
+		msg = "Selon le ratio de " + roomRatios.length.toString() + " utilisateurs, la moyenne de la room est de " + averageRatio.toFixed(2).toString() + "."
 		API.sendChat msg
+		
 		
 		
 
@@ -1068,32 +720,9 @@ updateVotes = (obj) ->
     data.currentmehs = obj.negative
     data.currentcurates = obj.curates
 
-announceCurate = (obj) ->
-    API.sendChat "/em: " + obj.user.username + " loves this song!"
 
-handleUserJoin = (user) ->
-    data.userJoin(user)
-    data.users[user.id].updateActivity()
-    API.sendChat "/em: " + user.username + " has joined the Room!"
-
-handleNewSong = (obj) ->
-    data.intervalMessages()
-    if(data.currentsong == null)
-        data.newSong()#first song since launch
-    else
-        API.sendChat "/em: Just played " + data.currentsong.title + " by " + data.currentsong.author + ". Stats: Woots: " + data.currentwoots + ", Mehs: " + data.currentmehs + ", Loves: " + data.currentcurates + "."
-        data.newSong()
-        document.getElementById("button-vote-positive").click()
-    if data.forceSkip # skip songs when song is over
-        songId = obj.media.id
-        setTimeout ->
-            cMedia = API.getMedia()
-            if cMedia.id == songId
-                API.moderateForceSkip()
-        ,(obj.media.duration * 1000)
 
 handleVote = (obj) ->
-    data.users[obj.user.id].updateActivity()
     data.users[obj.user.id].updateVote(obj.vote)
 
 handleUserLeave = (user)->
@@ -1121,10 +750,7 @@ antispam = (chat)->
         sender = API.getUser chat.fromID
         if(!sender.ambassador and !sender.moderator and !sender.owner and !sender.superuser)
             if !data.users[chat.fromID].protected
-                API.sendChat "Don't spam room links you ass clown"
-                API.moderateDeleteChat chat.chatID
             else
-                API.sendChat "I'm supposed to kick you, but you're just too darn pretty."
 
 beggar = (chat)->
     msg = chat.message.toLowerCase()
@@ -1136,7 +762,6 @@ beggar = (chat)->
     ]
     r = Math.floor Math.random()*responses.length
     if msg.indexOf('fan me') != -1 or msg.indexOf('fan for fan') != -1 or msg.indexOf('fan pls') != -1 or msg.indexOf('fan4fan') != -1 or msg.indexOf('add me to fan') != -1
-        API.sendChat responses[r].replace("{beggar}",chat.from)
 
 chatUniversals = (chat)->
     data.activity(chat)
