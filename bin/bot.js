@@ -1109,11 +1109,10 @@
     lockCommand.prototype.init = function() {
       this.command = '/lock';
       this.parseType = 'exact';
-      return this.rankPrivelege = 'mod';
+      return this.rankPrivelege = 'bouncer';
     };
 
     lockCommand.prototype.functionality = function() {
-      API.sendChat('Pop and lock dat ish');
       return data.lockBooth();
     };
 
