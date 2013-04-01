@@ -2,18 +2,18 @@ class cookieCommand extends Command
 	init: ->
 		@command='cookie'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='featured'
 
 	getCookie: ->
 		cookies = [
-			"a chocolate chip cookie"
-			"a sugar cookie"
-			"an oatmeal raisin cookie"
-			"a 'special' brownie"
-			"an animal cracker"
-			"a scooby snack"
-			"a blueberry muffin"
-			"a cupcake"
+			"un cookie au chocolat"
+			"un cookie au sucre"
+			"un cookie au raisin sec"
+			"un brownie chocolat/noisette"
+			"une poche d'haribo"
+			"un scooby snack"
+			"un muffin a la cerise"
+			"une glace"
 		]
 		c = Math.floor Math.random()*cookies.length
 		cookies[c]
@@ -24,7 +24,7 @@ class cookieCommand extends Command
 		if(msg.substring(7, 8) == "@") #Valid cookie argument including a username!
 			user = r.lookupUser(msg.substr(8))
 			if user == false
-				API.sendChat "/em doesn't see '"+msg.substr(8)+"' in room and eats cookie himself"
+				API.sendChat "/em ne trouve pas '"+msg.substr(8)+"' dans la room et mange lui même le cookie"
 				return false
 			else
-				API.sendChat "@"+user.username+", @"+@msgData.from+" has rewarded you with "+@getCookie()+". Enjoy."
+				API.sendChat "@"+user.username+", @"+@msgData.from+" t'as recompensé avec un "+@getCookie()+". Enjoy."

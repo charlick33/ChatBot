@@ -1,12 +1,12 @@
 class pushCommand extends Command
 	init: ->
-		@command='/push'
+		@command='/add'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		msg = @msgData.message
-		if msg.length>@command.length+2#'/push @'
+		if msg.length>@command.length+2#'/add @'
 			name = msg.substr(@command.length+2)
 			r = new RoomHelper()
 			user = r.lookupUser(name)

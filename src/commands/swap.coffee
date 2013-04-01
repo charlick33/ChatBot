@@ -2,7 +2,7 @@ class swapCommand extends Command
 	init: ->
 		@command='/swap'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		msg = @msgData.message
@@ -13,19 +13,17 @@ class swapCommand extends Command
 			userRemove = r.lookupUser users[0]
 			userAdd = r.lookupUser users[1]
 			if userRemove == false or userAdd == false
-				API.sendChat 'Error parsing one or both names'
+				API.sendChat 'Nom incorrect'
 				return false
 			else
 				data.lockBooth(->
 					API.moderateRemoveDJ userRemove.id
-					API.sendChat "Removing " + userRemove.username + "..."
 					setTimeout(->
 						API.moderateAddDJ userAdd.id
-						API.sendChat "Adding " + userAdd.username + "..."
 						setTimeout(->
 							data.unlockBooth()
 						,1500)
 					,1500)
 				)
 		else
-			API.sendChat "Command didn't parse into two seperate usernames"
+			API.sendChat "Noms incorrect"

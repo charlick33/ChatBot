@@ -2,7 +2,7 @@ class statusCommand extends Command
 	init: ->
 		@command='/status'
 		@parseType='exact'
-		@rankPrivelege='user'
+		@rankPrivelege='manager'
 
 	functionality: ->
 		lt = data.launchTime
@@ -16,8 +16,8 @@ class statusCommand extends Command
 		t = data.totalVotingData
 		t['songs'] = data.songCount
 
-		launch = 'Initiated ' + month + '/' + day + ' ' + hour + ':' + min + ' ' + meridian + '. '
-		totals = '' + t.songs + ' songs have been played, accumulating ' + t.woots + ' woots, ' + t.mehs + ' mehs, and ' + t.curates + ' queues.'
+		launch = 'Depuis le ' + month + '/' + day + ' à ' + hour + ':' + min + ' ' + meridian + '. '
+		totals = '' + t.songs + ' musiques ont été jouées, accumulant ' + t.woots + ' woots, ' + t.mehs + ' mehs, et ' + t.curates + ' favoris.'
 		
 		msg = launch + totals
 

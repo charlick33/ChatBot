@@ -2,7 +2,7 @@ class disconnectLookupCommand extends Command
 	init: ->
 		@command='/dclookup'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		cmd = @msgData.message
@@ -16,11 +16,11 @@ class disconnectLookupCommand extends Command
 						if dcUser.id == dcLookupId
 							disconnectInstances.push(dcUser)
 					if disconnectInstances.length > 0
-						resp = u.getUser().username + ' has disconnected ' + disconnectInstances.length.toString() + ' time'
+						resp = u.getUser().username + ' à été déconnecté ' + disconnectInstances.length.toString() + ' fois'
 						if disconnectInstances.length == 1#lol plurals
 							resp += '. '
 						else
-							resp += 's. '
+							resp += '. '
 						recentDisconnect = disconnectInstances.pop()
 						dcHour = recentDisconnect.time.getHours()
 						dcMins = recentDisconnect.time.getMinutes()
@@ -29,15 +29,15 @@ class disconnectLookupCommand extends Command
 						dcMeridian = if (dcHour % 12 == dcHour) then 'AM' else 'PM'
 						dcTimeStr = ''+dcHour+':'+dcMins+' '+dcMeridian
 						dcSongsAgo = data.songCount - recentDisconnect.songCount
-						resp += 'Their most recent disconnect was at ' + dcTimeStr + ' (' + dcSongsAgo + ' songs ago). '
+						resp += 'la plus récente était à ' + dcTimeStr + ' (il y a ' + dcSongsAgo + ' musiques). '
 
 						if recentDisconnect.waitlistPosition != undefined
-							resp += 'They were ' + recentDisconnect.waitlistPosition + ' song'
+							resp += 'Il lui restait ' + recentDisconnect.waitlistPosition + ' musique'
 							if recentDisconnect.waitlistPosition > 1#lol plural
 								resp += 's'
-							resp += ' away from the DJ booth.'
+							resp += " avant d'être sur la scène."
 						else
-							resp += 'They were not on the waitlist.'
+							resp += "Il n'était pas dans la fil d'attente."
 						API.sendChat resp
 						return
 					else

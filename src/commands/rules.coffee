@@ -2,11 +2,11 @@ class rulesCommand extends Command
 	init: ->
 		@command='/rules'
 		@parseType='startsWith'
-		@rankPrivelege='user'
+		@rankPrivelege='featured'
 
 	functionality: ->
-		msg = "1) Play good sound quality music. "
-		msg += "2) Don't replay a song on the room history. 3) Max song limit 8 minutes. "
-		msg += "4) DO NOT GO AWAY FROM KEYBOARD ON DECK! Please WOOT on DJ Booth and respect your fellow DJs!"
+		msg = "1) Tous les styles sont autorisés tant qu'ils plaisent. "
+		msg += "2) Evitez les musiques déjà dans l'historique. 3) La limite de durée est de 6 minutes. "
+		msg += "4) Restez actif dans le chat pour ne pas être sorti de la scène!"
 		API.sendChat(msg)
 		

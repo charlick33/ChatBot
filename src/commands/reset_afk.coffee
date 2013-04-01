@@ -2,7 +2,7 @@ class resetAfkCommand extends Command
 	init: ->
 		@command='/resetafk'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		if @msgData.message.length > 10
@@ -10,7 +10,7 @@ class resetAfkCommand extends Command
 			for id,u of data.users
 				if u.getUser().username == name
 					u.updateActivity()
-					API.sendChat '@' + u.getUser().username + '\'s AFK time has been reset.'
+					API.sendChat '@' + u.getUser().username + '\'s a été réinitialisé.'
 					return
 			API.sendChat 'Not sure who ' + name + ' is'
 			return

@@ -1,5 +1,4 @@
 pupOnline = ->
-	API.sendChat "Bot Online!"
 
 populateUserData = ->
 	users = API.getUsers()

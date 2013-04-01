@@ -2,7 +2,7 @@ class voteRatioCommand extends Command
 	init: ->
 		@command='/voteratio'
 		@parseType='startsWith'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		r = new RoomHelper()
@@ -12,17 +12,17 @@ class voteRatioCommand extends Command
 			u = r.lookupUser(name)
 			if u != false
 				votes = r.userVoteRatio(u)
-				msg = u.username + " has wooted "+votes['woot'].toString()+" time"
+				msg = u.username + " a woot "+votes['woot'].toString()+" fois"
 				if votes['woot'] == 1
 					msg+=', '
 				else
-					msg+='s, '
-				msg += "and meh'd "+votes['meh'].toString()+" time"
+					msg+=', '
+				msg += "et meh "+votes['meh'].toString()+" fois"
 				if votes['meh'] == 1
 					msg+='. '
 				else
-					msg+='s. '
-				msg+="Their woot:vote ratio is " + votes['positiveRatio'].toString() + "."
+					msg+='. '
+				msg+="Son ratio de woot et de " + votes['positiveRatio'].toString() + "."
 				API.sendChat msg
 			else
 				API.sendChat "I don't recognize a user named '"+name+"'"

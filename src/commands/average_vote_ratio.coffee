@@ -15,7 +15,7 @@ class avgVoteRatioCommand extends Command
 		for ratio in roomRatios
 			averageRatio+=ratio
 		averageRatio = averageRatio / roomRatios.length
-		msg = "Accounting for " + roomRatios.length.toString() + " user ratios, the average room ratio is " + averageRatio.toFixed(2).toString() + "."
+		msg = "Selon le ratio de " + roomRatios.length.toString() + " utilisateurs, la moyenne de la room est de " + averageRatio.toFixed(2).toString() + "."
 		API.sendChat msg
 		
 		

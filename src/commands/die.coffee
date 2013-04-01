@@ -2,11 +2,11 @@ class dieCommand extends Command
 	init: ->
 		@command='/die'
 		@parseType='exact'
-		@rankPrivelege='host'
+		@rankPrivelege='manager'
 
 	functionality: ->
-		API.sendChat 'Unhooking Events...'
+		API.sendChat "Que se passe t'il !?"
 		undoHooks()
-		API.sendChat 'Deleting bot data...'
+		API.sendChat 'On me débranche, aidez moi!'
 		data.implode()
-		API.sendChat 'Consider me dead'
+		API.sendChat '...Hors-ligne...'

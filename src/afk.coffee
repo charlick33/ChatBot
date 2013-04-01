@@ -8,24 +8,21 @@ afkCheck = ->
         secsLastActive = timeSinceLastActivity / 1000
         if user.getWarningCount() == 0
           user.warn()
-          API.sendChat "@"+user.getUser().username+", I haven't seen you chat or vote in at least 12 minutes. Are you AFK?  If you don't show activity in 2 minutes I will remove you."
+          API.sendChat "@"+user.getUser().username+", Je ne t'ai pas vu écrire depuis 1heure, es tu AFK ? Tu seras sorti dans la scène dans 5 minutes si tu restes inactif dans le chat."
         else if user.getWarningCount() == 1
           lastWarned = user.getLastWarning()#last time user was warned
           timeSinceLastWarning = now.getTime() - lastWarned.getTime()
-          twoMinutes = 2*60*1000
+          twoMinutes = 5*60*1000
           if timeSinceLastWarning > twoMinutes
             user.warn()
-            warnMsg = "@"+user.getUser().username
-            warnMsg += ", I haven't seen you chat or vote in at least 14 minutes now.  This is your second and FINAL warning.  If you do not chat or vote in the next minute I will remove you."
-            API.sendChat warnMsg
         else if user.getWarningCount() == 2#Time to remove
           lastWarned = user.getLastWarning()#last time user was warned
           timeSinceLastWarning = now.getTime() - lastWarned.getTime()
-          oneMinute = 1*60*1000
+          oneMinute = 1000
           if timeSinceLastWarning > oneMinute
             DJs = API.getDJs()
             if DJs.length > 0 and DJs[0].id != user.getUser().id
-              API.sendChat "@"+user.getUser().username+", you had 2 warnings. Please stay active by chatting or voting."
+              API.sendChat "@"+user.getUser().username+", tu avais été prévenu, restes actif dans le chat la prochaine fois."
               API.moderateRemoveDJ id
               user.warn()
       else

@@ -2,7 +2,7 @@ class reloadCommand extends Command
 	init: ->
 		@command='/reload'
 		@parseType='exact'
-		@rankPrivelege='host'
+		@rankPrivelege='manager'
 
 	functionality: ->
 		API.sendChat 'brb'

@@ -2,7 +2,7 @@ class popCommand extends Command
 	init: ->
 		@command='/pop'
 		@parseType='exact'
-		@rankPrivelege='mod'
+		@rankPrivelege='bouncer'
 
 	functionality: ->
 		djs = API.getDJs()
